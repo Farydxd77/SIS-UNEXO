@@ -1,0 +1,43 @@
+# Blueprint de Render: crea el servicio web a partir del Dockerfile.
+# Las variables con "sync: false" se piden en el panel de Render al crear
+# el servicio (son secretas o dependen de tu cuenta: APP_KEY, APP_URL, DB_URL).
+services:
+  - type: web
+    name: proyecto
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /up
+    envVars:
+      - key: APP_NAME
+        value: Laravel
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: APP_LOCALE
+        value: en
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: info
+      # Neon: pega aqui la "connection string" completa
+      # (postgresql://usuario:clave@ep-xxxx.neon.tech/neondb?sslmode=require).
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL
+        sync: false
+      - key: DB_SSLMODE
+        value: require
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: RUN_MIGRATIONS
+        value: "true"

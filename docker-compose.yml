@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: proyecto_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: proyecto
+      POSTGRES_USER: proyecto
+      POSTGRES_PASSWORD: secret
+    ports:
+      # 5432 ya lo usa otro contenedor en esta máquina; se expone en 5433.
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # La misma imagen que corre en Render, para probarla en local:
+  # docker compose up -d --build app  ->  http://localhost:8080
+  app:
+    build: .
+    container_name: proyecto_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:10000"
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      # Se toma del .env local (docker compose lo lee para estas variables).
+      APP_KEY: ${APP_KEY}
+      APP_URL: http://localhost:8080
+      LOG_CHANNEL: stderr
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: proyecto
+      DB_USERNAME: proyecto
+      DB_PASSWORD: secret
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: sync
+
+volumes:
+  postgres_data:
