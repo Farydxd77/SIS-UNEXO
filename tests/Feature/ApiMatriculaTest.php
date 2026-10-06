@@ -163,7 +163,7 @@ class ApiMatriculaTest extends TestCase
         $this->artisan('crm:token')->assertSuccessful();
 
         $this->assertModelMissing($primero);
-        $this->assertSame(['matriculas:crear'], PersonalAccessToken::sole()->abilities);
+        $this->assertSame(['catalogo:leer', 'matriculas:crear'], PersonalAccessToken::sole()->abilities);
     }
 
     public function test_el_comando_rechaza_a_quien_no_es_admin(): void

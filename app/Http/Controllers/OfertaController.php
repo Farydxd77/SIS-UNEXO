@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\EstadoCohorte;
 use App\Models\Modulo;
 use App\Models\Programa;
 use Illuminate\View\View;
@@ -20,9 +19,7 @@ class OfertaController extends Controller
                 ->with([
                     'modulos',
                     // La proxima edicion que aun admite interesados.
-                    'cohortes' => fn ($q) => $q
-                        ->whereIn('estado', [EstadoCohorte::Planificado, EstadoCohorte::EnConvocatoria])
-                        ->orderBy('fecha_inicio'),
+                    'cohortes' => fn ($q) => $q->enOferta()->orderBy('fecha_inicio'),
                 ])
                 ->orderBy('nombre')
                 ->get(),

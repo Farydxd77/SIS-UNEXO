@@ -79,6 +79,15 @@ class Cohorte extends Model
         $query->whereNotIn('estado', EstadoCohorte::historicos());
     }
 
+    /**
+     * Las ediciones que aun admiten interesados: lo que se ofrece en /oferta
+     * y en el catalogo del CRM.
+     */
+    public function scopeEnOferta(Builder $query): void
+    {
+        $query->whereIn('estado', [EstadoCohorte::Planificado, EstadoCohorte::EnConvocatoria]);
+    }
+
     /** Finalizadas o canceladas: las cohortes anteriores. */
     public function scopeHistoricas(Builder $query): void
     {

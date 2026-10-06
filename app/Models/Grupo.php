@@ -100,6 +100,27 @@ class Grupo extends Model
         return $this->inscritosVigentes() < $this->cupo_maximo;
     }
 
+    /**
+     * Lugares libres antes del cupo maximo; null si el grupo no tiene tope.
+     * Usa el conteo de scopeConInscritosVigentes si se cargo (sin N+1).
+     */
+    public function cuposDisponibles(): ?int
+    {
+        if ($this->cupo_maximo === null) {
+            return null;
+        }
+
+        $inscritos = $this->inscritos_vigentes_count ?? $this->inscritosVigentes();
+
+        return max(0, $this->cupo_maximo - $inscritos);
+    }
+
+    /** RN 4.2 y 4.3: en convocatoria o habilitado, y con lugar. */
+    public function aceptaInscripcionesAhora(): bool
+    {
+        return $this->estado->admiteInscripciones() && $this->cuposDisponibles() !== 0;
+    }
+
     /** Ej: "14 / 20" */
     public function indicadorCupo(): string
     {
@@ -199,6 +220,14 @@ class Grupo extends Model
     public function scopeDelDocente(Builder $query, int $docenteId): void
     {
         $query->where('docente_id', $docenteId);
+    }
+
+    /** Agrega inscritos_vigentes_count (reservadas + activas) en la misma consulta. */
+    public function scopeConInscritosVigentes(Builder $query): void
+    {
+        $query->withCount([
+            'matriculas as inscritos_vigentes_count' => fn (Builder $q) => $q->whereIn('estado', EstadoMatricula::vigentes()),
+        ]);
     }
 
     public function scopeAdmiteInscripciones(Builder $query): void

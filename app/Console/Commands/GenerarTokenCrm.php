@@ -27,12 +27,14 @@ class GenerarTokenCrm extends Command
         // Un solo token vigente para el CRM: generar uno nuevo invalida el anterior.
         $usuario->tokens()->where('name', self::NOMBRE_TOKEN)->delete();
 
-        $token = $usuario->createToken(self::NOMBRE_TOKEN, ['matriculas:crear']);
+        $token = $usuario->createToken(self::NOMBRE_TOKEN, ['catalogo:leer', 'matriculas:crear']);
 
         $this->info('Token del CRM (se muestra una sola vez, guardalo ahora):');
         $this->line($token->plainTextToken);
         $this->newLine();
-        $this->line('Uso: POST '.url('/api/v1/matriculas').' con el header "Authorization: Bearer <token>"');
+        $this->line('Uso, con el header "Authorization: Bearer <token>":');
+        $this->line('  GET  '.url('/api/v1/catalogo').'    lo que se puede vender');
+        $this->line('  POST '.url('/api/v1/matriculas').'  inscribir');
 
         return self::SUCCESS;
     }
