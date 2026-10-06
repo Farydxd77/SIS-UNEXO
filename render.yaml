@@ -41,3 +41,8 @@ services:
         value: sync
       - key: RUN_MIGRATIONS
         value: "true"
+      # DEMO: la API del CRM (catalogo y matriculas) queda abierta, sin token.
+      # Antes de produccion real: cambiar a "true" y generar el token con
+      # "php artisan crm:token".
+      - key: CRM_API_REQUIERE_TOKEN
+        value: "false"
